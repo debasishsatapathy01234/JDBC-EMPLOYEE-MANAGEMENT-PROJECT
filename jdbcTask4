@@ -12,8 +12,8 @@ public class jdbcTask4
 {
 	static String driver="oracle.jdbc.OracleDriver";
 	static String url="jdbc:oracle:thin:@localhost:1521:free";
-	static String uname="Debasish";
-	static String pwd="debasish";
+	static String uname="database user name";
+	static String pwd=" your database password";
 	
 	public static Connection getCon()
 	{
