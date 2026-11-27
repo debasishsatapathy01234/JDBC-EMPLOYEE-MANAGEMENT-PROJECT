@@ -1,0 +1,279 @@
+package com.pack2;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
+
+
+
+public class jdbcTask4 
+{
+	static String driver="oracle.jdbc.OracleDriver";
+	static String url="jdbc:oracle:thin:@localhost:1521:free";
+	static String uname="Debasish";
+	static String pwd="debasish";
+	
+	public static Connection getCon()
+	{
+		Connection con=null;
+		try
+		{
+			Class.forName(driver);
+			con = DriverManager.getConnection(url,uname,pwd);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return con;
+	}
+	
+	public void addEmp()
+	{
+		try
+		{
+			Connection con = getCon();
+			PreparedStatement pstm1=con.prepareStatement("insert into employee_db values(?,?,?,?,?,?)");
+			
+			IO.println("Adding Employee Data into DataBase.");
+			String eid= IO.readln("Enter Employee Id: ");			
+			String ename= IO.readln("Enter Employee Full Name: ");	
+			int eage=Integer.parseInt(IO.readln("Enter Employee age: "));
+			String dept= IO.readln("Enter Employee Department: ");	
+			int sal=Integer.parseInt(IO.readln("Enter employee Salary: "));
+			String email= IO.readln("Enter Employe email: ");	
+			pstm1.setString(1, eid);
+			pstm1.setString(2, ename);
+			pstm1.setInt(3, eage);
+			pstm1.setString(4, dept);
+			pstm1.setInt(5, sal);
+			pstm1.setString(6, email);
+			int count=pstm1.executeUpdate();
+			if(count==1)
+			{
+				IO.println( eid +"--"+ename +" Data inserted Successfully.");
+			}
+			else
+			{
+				IO.println("Data insertin Failed , Try again");
+			}
+
+		}
+		catch(SQLIntegrityConstraintViolationException s)
+		{
+			System.err.println("Duplicate Values are not aloowed here, try again.......");
+			System.exit(0);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	public void viewData()
+	{
+		Connection con = getCon();
+		try
+		{
+		PreparedStatement pstm2= con.prepareStatement("select * from employee_db");
+		ResultSet rs=pstm2.executeQuery();
+		while(rs.next())
+		{
+			IO.println(rs.getString(1)+" ||  "+
+		rs.getString(2)+" ||  "+rs.getInt(3)+" || "+rs.getString(4)+" || "+rs.getDouble(5)+" || "+rs.getString(6));
+		}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	
+	}
+	
+	void searchEmp()
+	{
+		Connection con = getCon();
+		try
+		{
+			String peid3= IO.readln("Enter employee ID want to search:  ");
+			PreparedStatement pstm3=con.prepareStatement("select * from employee_db where eid = ?");
+			pstm3.setString(1, peid3);
+			ResultSet rs3=pstm3.executeQuery();
+			while(rs3.next())
+		{
+				IO.println(rs3.getString(1)+" ||  "+
+						rs3.getString(2)+" ||  "+rs3.getInt(3)+" || "+rs3.getString(4)+" || "+rs3.getDouble(5)+" || "+rs3.getString(6));
+		}
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+
+void updatedata()
+{
+    Connection con = getCon();
+
+    try
+    {
+        String eid4 = IO.readln("Enter Employee Id to update: ");
+        String ename4 = IO.readln("Enter employee name you want to update: ");
+        int eage4 = Integer.parseInt(IO.readln("Enter employee age you want to update: "));
+        String dept4 = IO.readln("Enter department you want to update: ");
+        double sal4 = Double.parseDouble(IO.readln("Enter salary to be Updated: "));
+        String email4 = IO.readln("Enter email you want to update: ");
+        PreparedStatement pstm4 = con.prepareStatement("update employee_db set ename=?, eage=?, dept=?, sal=?, email=? where eid=?");
+
+        pstm4.setString(1, ename4);
+        pstm4.setInt(2, eage4);
+        pstm4.setString(3, dept4);
+        pstm4.setDouble(4, sal4);
+        pstm4.setString(5, email4);
+        pstm4.setString(6, eid4);
+
+        int count4 = pstm4.executeUpdate();
+
+        if(count4 == 1)
+        {
+            IO.println(eid4 + " Data Updated Successfully.");
+            IO.println("Want to see updated table (YES/NO)");
+            char choice = IO.readln("Enter choice: ").charAt(0);
+            switch(choice)
+            {
+                case 'y','Y' -> viewData();
+                case 'n','N' -> IO.println("Thank you for updating data.");
+                default -> System.err.println("Invalid choice");
+            }
+        }
+        else
+        {
+            System.err.println("Employee ID Not Found.");
+        }
+    }
+    catch(Exception e)
+    {
+        e.printStackTrace();
+    }
+}
+ void deleteData()
+ {
+	 Connection con= getCon();
+	 try
+	 {
+		 String eid5=IO.readln("Enter employee id you want to Delete: ");
+		 PreparedStatement pstm5=con.prepareStatement("delete from employee_db where eid= ?");
+		 pstm5.setString(1, eid5);
+		 int rowCount=pstm5.executeUpdate();
+		 if(rowCount>0)
+		 {
+			 IO.println(eid5+" Data is Deleted.");
+		 }
+		 else
+		 {
+			 System.err.println("Data is not deleted, enter proper employee id-----   :(");
+		 }
+	 }
+	 catch(Exception e)
+	 {
+		 e.printStackTrace();
+	 }
+ }
+ void maxSal()
+ {
+	 Connection con= getCon();
+	 try
+	 {
+		 PreparedStatement pstm6=con.prepareStatement("select * from employee_db where sal =(select max (sal) from employee_db) ");
+		 ResultSet rs6 =pstm6.executeQuery();
+		 while(rs6.next())
+		 {
+			 IO.println(" Highest salary Employee:  \n\n "+rs6.getString(1)+" ||  "+
+						rs6.getString(2)+" ||  "+rs6.getInt(3)+" || "+rs6.getString(4)+" || "+rs6.getDouble(5)+" || "+rs6.getString(6));
+		 }
+		 
+	 }
+	 catch(Exception e)
+	 {
+		 e.printStackTrace();
+	 }
+ }
+ 
+ void findEmpbyDept()
+ {
+	 Connection con = getCon();
+	 try
+	 {
+		 String dept7=IO.readln("Enter Department you want to search : ").toUpperCase();
+		 PreparedStatement pstm7=con.prepareStatement("select * from employee_db where dept=?");
+		 pstm7.setString(1, dept7);
+		 ResultSet rs7= pstm7.executeQuery();
+		 while(true)
+		 {
+			 if(rs7.next())
+			 {
+				 IO.println(rs7.getString(1)+" ||  "+
+							rs7.getString(2)+" ||  "+rs7.getInt(3)+" || "+rs7.getString(4)+" || "+rs7.getDouble(5)+" || "+rs7.getString(6));
+				 System.exit(0);
+			 }
+			 else
+			 {
+				 System.err.println("employee department not found------- :(");
+				 System.exit(0);
+			 }
+		 }
+	 }
+	 catch(Exception e)
+	 {
+		 e.printStackTrace();
+	 }
+ }
+	
+	public static void main(String[] args) 
+	{
+		jdbcTask4 obj = new jdbcTask4();
+		while(true)
+		{
+		IO.print("\n================================================");
+		IO.println("\nEMPLOYEE MANAGEMENT SYSTEM");
+		IO.print("================================================");
+		IO.println("\n1.Add Employee");
+		IO.println("2.View All Employee");
+		IO.println("3.Search Employee");
+		IO.println("4.Update Employee");
+		IO.println("5.Delete Employee");
+		IO.println("6.Find Highest Salary");
+		IO.println("7.Find Employee by Department");
+		IO.println("8.Exit");
+		IO.println();
+		
+		int choice = Integer.parseInt(IO.readln("Enter your choice: "));
+		IO.println();
+		
+		
+		switch (choice)
+		{
+			case 1-> obj.addEmp();
+			case 2->obj.viewData();
+			case 3-> obj.searchEmp();
+			case 4-> obj.updatedata();
+			case 5-> obj.deleteData();
+			case 6->obj.maxSal();
+			case 7-> obj.findEmpbyDept();
+			case 8->
+			{
+				IO.println("Thank you for visiting");
+				System.exit(0);
+			}
+		}
+		
+		
+		
+	}
+	}
+
+}
