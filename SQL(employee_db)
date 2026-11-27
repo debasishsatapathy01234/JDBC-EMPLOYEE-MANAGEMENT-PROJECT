@@ -1,0 +1,8 @@
+Name                                                              Null?    Type
+ ----------------------------------------------------------------- -------- --------------------------------------------
+ EID                                                               NOT NULL VARCHAR2(10) ---------------PRIMARY KEY
+ ENAME                                                                      VARCHAR2(25)
+ EAGE                                                                       NUMBER(3)
+ DEPT                                                                       VARCHAR2(15)
+ SAL                                                                        NUMBER(8,2)
+ EMAIL                                                                      VARCHAR2(30)
